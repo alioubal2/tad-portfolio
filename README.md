@@ -36,6 +36,29 @@ Vous pouvez le modifier depuis l'onglet "Profil" > "Sécurité" du dashboard.
 Toutes les modifications faites depuis le dashboard sont immédiatement
 reflétées sur le portfolio public (après rafraîchissement de la page).
 
+## Formulaire de contact
+
+Le formulaire envoie les messages par email via [Web3Forms](https://web3forms.com)
+(gratuit). Pour l'activer :
+
+1. Récupère une **Access Key** gratuite sur web3forms.com (entre ton email).
+2. Ajoute la variable d'environnement `NEXT_PUBLIC_WEB3FORMS_KEY` :
+   - en local : crée un fichier `.env.local` (voir `.env.example`) ;
+   - sur Vercel : *Settings → Environment Variables*, puis redéploie.
+
+Sans cette clé, le formulaire affiche un message invitant à écrire par email.
+
+## Réseaux sociaux
+
+Renseigne tes liens Instagram / Behance / LinkedIn dans `profile.social`
+de [lib/data.js](lib/data.js). Un lien vide est automatiquement masqué.
+
+## SEO & partage
+
+Les meta tags, le favicon (`app/icon.svg`) et l'image de partage dynamique
+(`app/opengraph-image.js`) sont déjà configurés. Pense à mettre à jour
+`SITE_URL` dans [app/layout.js](app/layout.js) si ton domaine change.
+
 ## Images des projets
 
 Placez vos images dans le dossier `public/projects/` et référencez-les

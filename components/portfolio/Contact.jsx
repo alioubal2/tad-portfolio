@@ -1,17 +1,58 @@
 'use client';
 
 import { useState } from 'react';
-import { Send, Mail, Phone, MapPin, ArrowUpRight } from 'lucide-react';
+import { Send, Mail, Phone, MapPin, ArrowUpRight, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import Socials from '@/components/portfolio/Socials';
+
+// Clé publique Web3Forms. Récupère la tienne (gratuit, 30s) sur https://web3forms.com
+// puis mets-la dans un fichier .env.local :  NEXT_PUBLIC_WEB3FORMS_KEY=ta-cle
+const WEB3FORMS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_KEY || '';
 
 export default function Contact({ profile }) {
-  const [sent, setSent] = useState(false);
+  // status: 'idle' | 'sending' | 'success' | 'error'
+  const [status, setStatus] = useState('idle');
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSent(true);
-    setTimeout(() => setSent(false), 3000);
-    e.target.reset();
+    const form = e.target;
+
+    if (!WEB3FORMS_KEY) {
+      setStatus('error');
+      setError("Le formulaire n'est pas encore configuré. Écris-moi directement par email.");
+      return;
+    }
+
+    setStatus('sending');
+    setError('');
+
+    const formData = new FormData(form);
+    formData.append('access_key', WEB3FORMS_KEY);
+    formData.append('subject', `Nouveau message portfolio — ${formData.get('name')}`);
+    formData.append('from_name', 'Portfolio Abdourahmane Diallo');
+
+    try {
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { Accept: 'application/json' },
+        body: formData,
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setStatus('success');
+        form.reset();
+        setTimeout(() => setStatus('idle'), 5000);
+      } else {
+        throw new Error(data.message || 'Erreur inconnue');
+      }
+    } catch (err) {
+      setStatus('error');
+      setError("L'envoi a échoué. Réessaie ou contacte-moi par email.");
+    }
   };
+
+  const sending = status === 'sending';
 
   return (
     <section id="contact" className="py-28 px-6 reveal">
@@ -47,61 +88,102 @@ export default function Contact({ profile }) {
               label="Localisation"
               value={profile.location}
             />
+
+            {profile.social && (
+              <div className="pt-2">
+                <div className="text-[0.65rem] text-dark-400 tracking-widest uppercase mb-3 px-1">
+                  Réseaux
+                </div>
+                <Socials social={profile.social} />
+              </div>
+            )}
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="md:col-span-3 space-y-5">
+          <form onSubmit={handleSubmit} className="md:col-span-3 space-y-5" noValidate>
             <div className="grid sm:grid-cols-2 gap-5">
               <div>
-                <label className="block text-xs text-dark-400 mb-2 tracking-wide uppercase">
+                <label htmlFor="name" className="block text-xs text-dark-400 mb-2 tracking-wide uppercase">
                   Nom
                 </label>
                 <input
+                  id="name"
+                  name="name"
                   type="text"
                   required
+                  disabled={sending}
+                  autoComplete="name"
                   placeholder="Votre nom"
-                  className="w-full px-4 py-3 bg-dark-800/60 border border-dark-700/60 rounded-lg text-sm text-white placeholder-dark-400 transition-all"
+                  className="w-full px-4 py-3 bg-dark-800/60 border border-dark-700/60 rounded-lg text-sm text-white placeholder-dark-400 transition-all disabled:opacity-50"
                 />
               </div>
               <div>
-                <label className="block text-xs text-dark-400 mb-2 tracking-wide uppercase">
+                <label htmlFor="email" className="block text-xs text-dark-400 mb-2 tracking-wide uppercase">
                   Email
                 </label>
                 <input
+                  id="email"
+                  name="email"
                   type="email"
                   required
+                  disabled={sending}
+                  autoComplete="email"
                   placeholder="votre@email.com"
-                  className="w-full px-4 py-3 bg-dark-800/60 border border-dark-700/60 rounded-lg text-sm text-white placeholder-dark-400 transition-all"
+                  className="w-full px-4 py-3 bg-dark-800/60 border border-dark-700/60 rounded-lg text-sm text-white placeholder-dark-400 transition-all disabled:opacity-50"
                 />
               </div>
             </div>
             <div>
-              <label className="block text-xs text-dark-400 mb-2 tracking-wide uppercase">
+              <label htmlFor="message" className="block text-xs text-dark-400 mb-2 tracking-wide uppercase">
                 Message
               </label>
               <textarea
+                id="message"
+                name="message"
                 required
+                disabled={sending}
                 rows={5}
                 placeholder="Décrivez votre projet..."
-                className="w-full px-4 py-3 bg-dark-800/60 border border-dark-700/60 rounded-lg text-sm text-white placeholder-dark-400 resize-none transition-all"
+                className="w-full px-4 py-3 bg-dark-800/60 border border-dark-700/60 rounded-lg text-sm text-white placeholder-dark-400 resize-none transition-all disabled:opacity-50"
               />
             </div>
+
+            {/* Honeypot anti-spam (caché) */}
+            <input type="checkbox" name="botcheck" className="hidden" style={{ display: 'none' }} tabIndex={-1} autoComplete="off" />
+
             <button
               type="submit"
-              className={`inline-flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${
-                sent
-                  ? 'bg-accent text-dark-950'
-                  : 'bg-accent text-dark-950 hover:bg-accent-dim'
-              }`}
+              disabled={sending || status === 'success'}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-200 bg-accent text-dark-950 hover:bg-accent-dim disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {sent ? (
-                'Message envoyé !'
+              {sending ? (
+                <>
+                  Envoi en cours <Loader2 size={14} className="animate-spin" />
+                </>
+              ) : status === 'success' ? (
+                <>
+                  Message envoyé <CheckCircle2 size={14} />
+                </>
               ) : (
                 <>
                   Envoyer <Send size={14} />
                 </>
               )}
             </button>
+
+            {/* Feedback */}
+            {status === 'success' && (
+              <p role="status" className="flex items-center gap-2 text-sm text-accent">
+                <CheckCircle2 size={15} className="flex-shrink-0" />
+                Merci ! Ton message est bien parti, je te réponds vite.
+              </p>
+            )}
+            {status === 'error' && (
+              <p role="alert" className="flex items-center gap-2 text-sm text-red-400">
+                <AlertCircle size={15} className="flex-shrink-0" />
+                {error}
+              </p>
+            )}
           </form>
         </div>
       </div>

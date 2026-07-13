@@ -14,11 +14,32 @@ const links = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [active, setActive] = useState('');
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener('scroll', onScroll);
+    onScroll();
     return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Scroll spy : met en surbrillance le lien de la section visible
+  useEffect(() => {
+    const sections = links
+      .map((l) => document.getElementById(l.href.slice(1)))
+      .filter(Boolean);
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) setActive(`#${entry.target.id}`);
+        });
+      },
+      { rootMargin: '-45% 0px -50% 0px', threshold: 0 }
+    );
+
+    sections.forEach((s) => observer.observe(s));
+    return () => observer.disconnect();
   }, []);
 
   return (
@@ -33,6 +54,7 @@ export default function Navbar() {
         {/* Logo */}
         <a
           href="#"
+          aria-label="Retour en haut de page"
           className="font-display font-bold text-lg tracking-tight text-white"
         >
           AD
@@ -41,23 +63,32 @@ export default function Navbar() {
 
         {/* Desktop links */}
         <ul className="hidden md:flex items-center gap-1">
-          {links.map((link) => (
-            <li key={link.href}>
-              <a
-                href={link.href}
-                className="text-sm text-dark-200 hover:text-accent px-3 py-2 rounded-md transition-colors duration-200"
-              >
-                {link.label}
-              </a>
-            </li>
-          ))}
+          {links.map((link) => {
+            const isActive = active === link.href;
+            return (
+              <li key={link.href}>
+                <a
+                  href={link.href}
+                  aria-current={isActive ? 'true' : undefined}
+                  className={`text-sm px-3 py-2 rounded-md transition-colors duration-200 ${
+                    isActive
+                      ? 'text-accent'
+                      : 'text-dark-200 hover:text-accent'
+                  }`}
+                >
+                  {link.label}
+                </a>
+              </li>
+            );
+          })}
         </ul>
 
         {/* Mobile toggle */}
         <button
           className="md:hidden text-dark-200 hover:text-white transition-colors"
           onClick={() => setOpen(!open)}
-          aria-label="Menu"
+          aria-label={open ? 'Fermer le menu' : 'Ouvrir le menu'}
+          aria-expanded={open}
         >
           {open ? <X size={20} /> : <Menu size={20} />}
         </button>
@@ -67,17 +98,23 @@ export default function Navbar() {
       {open && (
         <div className="md:hidden bg-dark-900/95 backdrop-blur-xl border-b border-dark-700/50 px-6 pb-6">
           <ul className="flex flex-col gap-1">
-            {links.map((link) => (
-              <li key={link.href}>
-                <a
-                  href={link.href}
-                  onClick={() => setOpen(false)}
-                  className="block text-sm text-dark-200 hover:text-accent px-3 py-3 rounded-md transition-colors"
-                >
-                  {link.label}
-                </a>
-              </li>
-            ))}
+            {links.map((link) => {
+              const isActive = active === link.href;
+              return (
+                <li key={link.href}>
+                  <a
+                    href={link.href}
+                    onClick={() => setOpen(false)}
+                    aria-current={isActive ? 'true' : undefined}
+                    className={`block text-sm px-3 py-3 rounded-md transition-colors ${
+                      isActive ? 'text-accent' : 'text-dark-200 hover:text-accent'
+                    }`}
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}
