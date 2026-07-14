@@ -73,38 +73,41 @@ export default function Projects({ projects }) {
       {/* Lightbox */}
       {lightbox && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-8 bg-dark-950/90 backdrop-blur-sm dash-fade-in"
+          className="fixed inset-0 z-[100] overflow-y-auto bg-dark-950/90 backdrop-blur-sm dash-fade-in"
           onClick={() => setLightbox(null)}
           role="dialog"
           aria-modal="true"
           aria-label={`Aperçu du projet ${lightbox.title}`}
         >
           <button
-            className="absolute top-5 right-5 w-10 h-10 rounded-lg bg-dark-800/80 border border-dark-700 flex items-center justify-center text-dark-200 hover:text-accent hover:border-accent/30 transition-colors"
+            className="fixed top-5 right-5 z-10 w-10 h-10 rounded-lg bg-dark-800/80 border border-dark-700 flex items-center justify-center text-dark-200 hover:text-accent hover:border-accent/30 transition-colors"
             onClick={() => setLightbox(null)}
             aria-label="Fermer"
           >
             <X size={18} />
           </button>
 
-          <figure
-            className="max-w-5xl w-full flex flex-col items-center"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <img
-              src={lightbox.imageFull || lightbox.image}
-              alt={lightbox.title}
-              className="max-w-full max-h-[80vh] w-auto object-contain rounded-lg shadow-2xl"
-            />
-            <figcaption className="mt-4 text-center">
-              <span className="text-white font-display font-semibold">
-                {lightbox.title}
-              </span>
-              <span className="text-dark-400 text-sm ml-2">
-                {lightbox.category} &middot; {lightbox.year}
-              </span>
-            </figcaption>
-          </figure>
+          {/* Wrapper scrollable : centré si l'image tient, défilable sinon */}
+          <div className="min-h-full flex items-center justify-center p-4 sm:p-8">
+            <figure
+              className="flex flex-col items-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src={lightbox.imageFull || lightbox.image}
+                alt={lightbox.title}
+                className="w-auto max-w-full sm:max-w-3xl rounded-lg shadow-2xl"
+              />
+              <figcaption className="mt-4 mb-2 text-center">
+                <span className="text-white font-display font-semibold">
+                  {lightbox.title}
+                </span>
+                <span className="text-dark-400 text-sm ml-2">
+                  {lightbox.category} &middot; {lightbox.year}
+                </span>
+              </figcaption>
+            </figure>
+          </div>
         </div>
       )}
     </section>
