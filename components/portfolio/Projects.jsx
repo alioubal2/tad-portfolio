@@ -1,14 +1,29 @@
 'use client';
 
-import { useState } from 'react';
-import { ArrowUpRight, Layers } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ArrowUpRight, Layers, Maximize2, X } from 'lucide-react';
 
 export default function Projects({ projects }) {
   const [filter, setFilter] = useState('Tous');
+  const [lightbox, setLightbox] = useState(null);
 
   const categories = ['Tous', ...new Set(projects.map((p) => p.category))];
   const filtered =
     filter === 'Tous' ? projects : projects.filter((p) => p.category === filter);
+
+  // Fermeture au clavier (Échap) + blocage du scroll quand la lightbox est ouverte
+  useEffect(() => {
+    if (!lightbox) return;
+    const onKey = (e) => {
+      if (e.key === 'Escape') setLightbox(null);
+    };
+    window.addEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = '';
+    };
+  }, [lightbox]);
 
   return (
     <section id="projects" className="py-28 px-6 reveal">
@@ -40,7 +55,11 @@ export default function Projects({ projects }) {
         {/* Grid */}
         <div className="grid sm:grid-cols-2 gap-5">
           {filtered.map((project) => (
-            <ProjectCard key={project.id} project={project} />
+            <ProjectCard
+              key={project.id}
+              project={project}
+              onOpen={() => setLightbox(project)}
+            />
           ))}
         </div>
 
@@ -50,30 +69,84 @@ export default function Projects({ projects }) {
           </div>
         )}
       </div>
+
+      {/* Lightbox */}
+      {lightbox && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-8 bg-dark-950/90 backdrop-blur-sm dash-fade-in"
+          onClick={() => setLightbox(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Aperçu du projet ${lightbox.title}`}
+        >
+          <button
+            className="absolute top-5 right-5 w-10 h-10 rounded-lg bg-dark-800/80 border border-dark-700 flex items-center justify-center text-dark-200 hover:text-accent hover:border-accent/30 transition-colors"
+            onClick={() => setLightbox(null)}
+            aria-label="Fermer"
+          >
+            <X size={18} />
+          </button>
+
+          <figure
+            className="max-w-5xl w-full flex flex-col items-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={lightbox.imageFull || lightbox.image}
+              alt={lightbox.title}
+              className="max-w-full max-h-[80vh] w-auto object-contain rounded-lg shadow-2xl"
+            />
+            <figcaption className="mt-4 text-center">
+              <span className="text-white font-display font-semibold">
+                {lightbox.title}
+              </span>
+              <span className="text-dark-400 text-sm ml-2">
+                {lightbox.category} &middot; {lightbox.year}
+              </span>
+            </figcaption>
+          </figure>
+        </div>
+      )}
     </section>
   );
 }
 
-function ProjectCard({ project }) {
+function ProjectCard({ project, onOpen }) {
   const [imgError, setImgError] = useState(false);
+  const hasImage = !imgError && project.image;
 
   return (
     <div className="group relative bg-dark-800/40 border border-dark-700/50 rounded-xl overflow-hidden hover:border-accent/15 transition-all duration-300">
-      {/* Image */}
-      <div className="aspect-[16/10] overflow-hidden bg-dark-800">
-        {!imgError && project.image ? (
-          <img
-            src={project.image}
-            alt={project.title}
-            className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-[1.03] transition-all duration-500"
-            onError={() => setImgError(true)}
-          />
+      {/* Image (cliquable pour agrandir) */}
+      <button
+        type="button"
+        onClick={hasImage ? onOpen : undefined}
+        aria-label={hasImage ? `Agrandir l'image de ${project.title}` : undefined}
+        className={`block w-full aspect-[16/10] overflow-hidden bg-dark-800 relative ${
+          hasImage ? 'cursor-zoom-in' : 'cursor-default'
+        }`}
+      >
+        {hasImage ? (
+          <>
+            <img
+              src={project.image}
+              alt={project.title}
+              className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-[1.03] transition-all duration-500"
+              onError={() => setImgError(true)}
+            />
+            {/* Overlay zoom au survol */}
+            <span className="absolute inset-0 flex items-center justify-center bg-dark-950/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <span className="w-11 h-11 rounded-full bg-dark-900/80 border border-white/15 flex items-center justify-center text-white">
+                <Maximize2 size={18} />
+              </span>
+            </span>
+          </>
         ) : (
           <div className="w-full h-full flex items-center justify-center project-img-placeholder">
             <Layers size={32} className="text-dark-500" />
           </div>
         )}
-      </div>
+      </button>
 
       {/* Info */}
       <div className="p-6">
