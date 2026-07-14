@@ -92,7 +92,7 @@ function ProjectCard({ project }) {
             className="text-dark-400 group-hover:text-accent transition-colors duration-200"
           />
         </h3>
-        <p className="text-sm text-dark-300 leading-relaxed line-clamp-2">
+        <p className="text-sm text-dark-300 leading-relaxed line-clamp-3">
           {project.description}
         </p>
       </div>

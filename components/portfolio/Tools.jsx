@@ -41,7 +41,6 @@ export default function Tools({ tools, skills }) {
                   key={item.name}
                   className="p-6 bg-dark-800/40 border border-dark-700/50 rounded-xl hover:border-accent/20 transition-all duration-300"
                 >
-                  <span className="block w-8 h-0.5 bg-accent rounded-full mb-4" />
                   <h4 className="text-sm text-white font-medium mb-2">
                     {item.name}
                   </h4>
