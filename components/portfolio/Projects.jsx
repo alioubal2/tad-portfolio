@@ -87,18 +87,18 @@ export default function Projects({ projects }) {
             <X size={18} />
           </button>
 
-          {/* Wrapper scrollable : centré si l'image tient, défilable sinon */}
-          <div className="min-h-full flex items-center justify-center p-4 sm:p-8">
+          {/* Wrapper scrollable : centré si l'image tient, entièrement défilable sinon */}
+          <div className="min-h-full flex flex-col px-4 py-14">
             <figure
-              className="flex flex-col items-center"
+              className="my-auto mx-auto flex flex-col items-center"
               onClick={(e) => e.stopPropagation()}
             >
               <img
                 src={lightbox.imageFull || lightbox.image}
                 alt={lightbox.title}
-                className="w-auto max-w-full sm:max-w-3xl rounded-lg shadow-2xl"
+                className="w-auto max-w-full sm:max-w-2xl rounded-lg shadow-2xl"
               />
-              <figcaption className="mt-4 mb-2 text-center">
+              <figcaption className="mt-4 text-center">
                 <span className="text-white font-display font-semibold">
                   {lightbox.title}
                 </span>
