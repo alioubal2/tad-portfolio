@@ -52,7 +52,7 @@ export default function Home() {
         <About profile={data.profile} />
         <Services services={data.services} />
         <Projects projects={data.projects} />
-        <Tools tools={data.tools} />
+        <Tools tools={data.tools} skills={data.profile.skills} />
         <Contact profile={data.profile} />
       </main>
       <Footer profile={data.profile} />
