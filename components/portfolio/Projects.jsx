@@ -73,7 +73,7 @@ export default function Projects({ projects }) {
       {/* Lightbox */}
       {lightbox && (
         <div
-          className="fixed inset-0 z-[100] overflow-y-auto bg-dark-950/90 backdrop-blur-sm dash-fade-in"
+          className="fixed inset-0 z-[100] overflow-y-auto bg-dark-950/90 backdrop-blur-sm cursor-zoom-out dash-fade-in"
           onClick={() => setLightbox(null)}
           role="dialog"
           aria-modal="true"
@@ -89,16 +89,14 @@ export default function Projects({ projects }) {
 
           {/* Wrapper scrollable : centré si l'image tient, entièrement défilable sinon */}
           <div className="flex min-h-screen items-center justify-center px-4 py-16">
-            <figure
-              className="flex flex-col items-center"
-              onClick={(e) => e.stopPropagation()}
-            >
+            <figure className="flex flex-col items-center">
               <img
                 src={lightbox.imageFull || lightbox.image}
                 alt={lightbox.title}
-                className="w-auto max-w-full sm:max-w-2xl rounded-lg shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+                className="w-auto max-w-full sm:max-w-2xl rounded-lg shadow-2xl cursor-default"
               />
-              <figcaption className="mt-4 text-center">
+              <figcaption className="mt-4 text-center pointer-events-none">
                 <span className="text-white font-display font-semibold">
                   {lightbox.title}
                 </span>
