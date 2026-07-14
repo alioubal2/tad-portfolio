@@ -88,9 +88,9 @@ export default function Projects({ projects }) {
           </button>
 
           {/* Wrapper scrollable : centré si l'image tient, entièrement défilable sinon */}
-          <div className="min-h-full flex flex-col px-4 py-14">
+          <div className="flex min-h-screen items-center justify-center px-4 py-16">
             <figure
-              className="my-auto mx-auto flex flex-col items-center"
+              className="flex flex-col items-center"
               onClick={(e) => e.stopPropagation()}
             >
               <img
